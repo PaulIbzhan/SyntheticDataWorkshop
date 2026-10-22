@@ -1,0 +1,403 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Synthetic Data Workshop · Synthpop Lab Bench</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout concept: one command per screen. Title, code, short notes, Copy, Next. */
+:root {
+  --bg: #EEF2F5; --panel: #FFFFFF; --panel-2: #E4EAEF; --ink: #12202B; --ink-soft: #4A5B69; --line: #CBD5DD;
+  --accent: #1F5FAE; --accent-ink: #FFFFFF; --good: #1B7F55;
+  --code-bg: #0E1A24; --code-ink: #DCE6EE; --code-dim: #8DA0AF;
+  --c-comment: #7C909F; --c-string: #9AD4A5; --c-num: #F2B880; --c-fn: #7FB6F5; --c-kw: #D9A0F0; --c-op: #F08A8A;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0B141B; --panel: #131F29; --panel-2: #1B2A36; --ink: #E5EDF3; --ink-soft: #94A7B6; --line: #26394A; --accent: #6DA9F0; --accent-ink: #08131D; --good: #5CCB98; --code-bg: #08111A; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #0B141B; --panel: #131F29; --panel-2: #1B2A36; --ink: #E5EDF3; --ink-soft: #94A7B6; --line: #26394A; --accent: #6DA9F0; --accent-ink: #08131D; --good: #5CCB98; --code-bg: #08111A; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.55; padding-block: 24px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 760px; margin: 0 auto; display: grid; gap: 16px; }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.brand { font-family: var(--f-display); font-weight: 700; font-size: 20px; }
+.where { font-family: var(--f-mono); font-size: 13px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.bar { height: 6px; background: var(--panel-2); border-radius: 99px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 14px; }
+.part { font-family: var(--f-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+h1 { font-family: var(--f-display); font-weight: 700; font-size: clamp(24px, 5vw, 32px); line-height: 1.15; margin: 0; text-wrap: balance; }
+.why { margin: 0; color: var(--ink-soft); }
+.code { background: var(--code-bg); border-radius: 10px; padding: 14px 16px; display: grid; gap: 10px; }
+.ln { min-width: 0; }
+.ln pre { margin: 0; font-family: var(--f-mono); font-size: 13.5px; line-height: 1.6; color: var(--code-ink); overflow-x: auto; }
+.ln p { margin: 2px 0 0; font-size: 13px; color: var(--code-dim); }
+.c-comment { color: var(--c-comment); } .c-string { color: var(--c-string); } .c-num { color: var(--c-num); }
+.c-fn { color: var(--c-fn); } .c-kw { color: var(--c-kw); } .c-op { color: var(--c-op); }
+.copy { width: 100%; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px; padding: 14px; font-size: 17px; font-weight: 600; }
+.copy:hover { filter: brightness(1.08); }
+.copy.ok { background: var(--good); }
+.nav { display: flex; gap: 10px; justify-content: space-between; }
+.nav button { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 11px 18px; font-weight: 500; color: var(--ink); }
+.nav button:hover:not(:disabled) { border-color: var(--accent); }
+.nav button:disabled { opacity: .4; cursor: not-allowed; }
+.nav .next { background: var(--ink); color: var(--bg); border-color: var(--ink); font-weight: 600; }
+.see { background: none; border: 0; padding: 0; color: var(--accent); font-size: 14px; text-align: left; text-decoration: underline; }
+.out { background: var(--panel-2); border-radius: 10px; padding: 10px 14px; font-family: var(--f-mono); font-size: 13px; white-space: pre-wrap; margin: 0; }
+.desc { background: var(--panel-2); border-radius: 10px; padding: 12px 14px; }
+.desc b { font-family: var(--f-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); font-weight: 500; }
+.desc p { margin: 4px 0 0; }
+.done { text-align: center; padding: 10px 0; }
+.dots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.dots button { width: 12px; height: 12px; border-radius: 50%; border: 0; padding: 0; background: var(--line); }
+.dots button.on { background: var(--accent); }
+.dots button.past { background: var(--good); }
+
+:root { --pop: #C9560A; --pop-bg: #FDEBDD; --pop-ink: #FFFFFF; --bad: #B3362B; --good-bg: #DDF1E8; --bad-bg: #F9E1DE; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --pop: #F2A065; --pop-bg: #3A2415; --pop-ink: #1E0E04; --bad: #F08A80; --good-bg: #15332A; --bad-bg: #3A1B18; } }
+:root[data-theme="dark"] { --pop: #F2A065; --pop-bg: #3A2415; --pop-ink: #1E0E04; --bad: #F08A80; --good-bg: #15332A; --bad-bg: #3A1B18; }
+.chips { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.chip { font-family: var(--f-mono); font-size: 12.5px; background: var(--panel); border: 1px solid var(--line); border-radius: 99px; padding: 3px 11px; font-variant-numeric: tabular-nums; }
+.chip.pulse { animation: pulse .6s ease; border-color: var(--good); }
+.chip.hot { border-color: var(--pop); color: var(--pop); }
+@keyframes pulse { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+.card { position: relative; overflow: hidden; }
+.card.quiz { border: 2px dashed var(--pop); background: linear-gradient(var(--pop-bg), var(--pop-bg)) , var(--panel); background-blend-mode: normal; }
+.card.quiz { background: var(--pop-bg); }
+.part.q { color: var(--pop); }
+.stamp { justify-self: start; font-family: var(--f-display); font-weight: 700; font-size: 15px; letter-spacing: .08em; text-transform: uppercase; background: var(--pop); color: var(--pop-ink); padding: 4px 12px; border-radius: 6px; transform: rotate(-3deg); animation: stampin .5s cubic-bezier(.2,1.6,.4,1); }
+@keyframes stampin { from { transform: rotate(-12deg) scale(2); opacity: 0; } to { transform: rotate(-3deg) scale(1); opacity: 1; } }
+.opts { display: grid; gap: 8px; }
+.opt { text-align: left; background: var(--panel); color: var(--ink); border: 2px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 15.5px; display: flex; gap: 10px; align-items: baseline; }
+.opt b { font-family: var(--f-mono); font-weight: 500; color: var(--ink-soft); }
+.opt:hover:not(:disabled) { border-color: var(--pop); transform: translateX(3px); }
+.opt { transition: transform .15s, border-color .15s; }
+.opt.right { background: var(--good-bg); border-color: var(--good); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); animation: shake .35s; }
+.opt:disabled { cursor: default; }
+@keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.fb { background: var(--panel); border-radius: 10px; padding: 12px 14px; border-left: 4px solid var(--good); }
+.fb.no { border-left-color: var(--bad); }
+.fb b { display: block; margin-bottom: 2px; }
+.skip { background: none; border: 0; color: var(--ink-soft); font-size: 13px; text-decoration: underline; padding: 0; justify-self: start; }
+.tryit { background: var(--panel-2); border-radius: 10px; padding: 10px 14px; font-size: 14px; }
+.burst { position: absolute; left: 50%; top: 40%; pointer-events: none; }
+.burst i { position: absolute; width: 9px; height: 9px; border-radius: 2px; animation: fly .9s ease-out forwards; }
+@keyframes fly { to { transform: translate(var(--x), var(--y)) rotate(var(--r)); opacity: 0; } }
+.dots { align-items: center; }
+.dots button.q { border-radius: 2px; transform: rotate(45deg); background: color-mix(in srgb, var(--pop) 40%, var(--line)); }
+.dots button.q.on { background: var(--pop); }
+.dots button.q.past { background: var(--good); }
+.dots button.on { transform: scale(1.35); }
+.dots button.q.on { transform: rotate(45deg) scale(1.35); }
+.rank { font-family: var(--f-display); font-weight: 700; font-size: 34px; color: var(--accent); margin: 6px 0; }
+.sum { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.copy.ok { animation: pulse .5s ease; }
+@media (prefers-reduced-motion: reduce) { .stamp, .opt.wrong, .chip.pulse, .copy.ok, .burst i { animation: none; } .opt:hover:not(:disabled) { transform: none; } }
+.card.th{border-top:5px solid var(--accent);animation:rise .4s ease}
+@keyframes rise{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+.kick{justify-self:start;font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);padding:3px 10px;border-radius:99px}
+.card.th h1{font-size:clamp(26px,6vw,38px)}
+.dgw{background:var(--panel-2);border-radius:12px;padding:12px}
+.dg{width:100%;height:auto;display:block}
+.dg .bx{fill:var(--panel);stroke:var(--line);stroke-width:1.5}
+.dg .a{fill:var(--accent);stroke:none}.dg .p{fill:var(--pop);stroke:none}.dg .g{fill:var(--good);stroke:none}
+.dg .hl{stroke:var(--good);stroke-width:2.5}
+.dg text{fill:var(--ink);font:600 15px var(--f-body)}
+.dg text.s{fill:var(--ink-soft);font-family:var(--f-mono);font-size:12px;font-weight:500;letter-spacing:.04em}
+.dg text.s2{fill:var(--ink-soft);font-weight:400;font-size:13.5px}
+.dg text.w{fill:var(--accent-ink)}.dg text.wp{fill:var(--pop-ink)}
+.dg .ar{stroke:var(--ink-soft);stroke-width:2.5;fill:none;marker-end:url(#ah)}
+.dg .dash{stroke:var(--ink-soft);stroke-width:1.5;stroke-dasharray:5 4;fill:none}
+.flow{stroke-dasharray:6 5;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-22}}
+.tiles{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.tile{background:var(--panel-2);border-radius:10px;padding:12px 14px;font-size:15px}
+.tile b{display:block;font-family:var(--f-display);font-size:17px;margin-bottom:2px}
+.rem{background:var(--pop-bg);border-left:4px solid var(--pop);border-radius:10px;padding:10px 14px}
+.rem b{color:var(--pop);font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.fidrow{display:flex;gap:10px;align-items:center;font-family:var(--f-mono);font-size:12px;color:var(--ink-soft);margin-top:8px}
+.fidrow input{flex:1;accent-color:var(--pop);height:28px}
+#fidtxt{margin-top:6px;font-weight:500}
+.stp{list-style:none;margin:0;padding:0;display:grid;gap:8px;counter-reset:s}
+.stp li{counter-increment:s;display:flex;gap:12px;align-items:flex-start;background:var(--panel-2);border-radius:10px;padding:10px 12px}
+.stp li:before{content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font:700 15px var(--f-display);display:grid;place-items:center}
+.stp li:last-child:before{background:var(--good)}.stp li b{display:block}
+.explore{background:var(--panel-2);border-radius:12px;padding:14px 16px;text-align:left;display:grid;gap:6px}
+.explore a{color:var(--accent);font-weight:600}
+.explore ul{margin:0;padding-left:20px}
+@media (prefers-reduced-motion:reduce){.flow,.card.th{animation:none}}
+</style>
+
+<div class="wrap">
+  <div class="head"><div class="brand">Synthetic Data Workshop</div><div class="chips" id="chips"></div></div>
+  <div class="bar"><i id="fill"></i></div>
+  <div class="card" id="card"></div>
+  <div class="dots" id="dots" aria-label="Jump to step"></div>
+</div>
+
+<script>
+var S = [
+ {p:"Part 1 · Make 200,000 synthetic rows", t:"Load the packages", w:"Run this first. It gives R the data and the tools.",
+  l:[[String.raw`library(readmission)`,"Loads the real readmission dataset."],[String.raw`library(tidyverse)`,"Loads data tools like mutate and select."],[String.raw`library(synthpop)`,"Loads the synthetic data tools."]]},
+ {p:"Part 1 · Make 200,000 synthetic rows", t:"Prepare the real data", w:"Copy and run all lines together. They build a clean table called df_real.",
+  l:[[String.raw`df_real <- readmission %>%`,"Start from readmission and save the result as df_real."],
+     [String.raw`  mutate(blood_glucose = factor(ifelse(is.na(blood_glucose), "Missing", as.character(blood_glucose))),`,"Replace empty blood glucose values with the word Missing."],
+     [String.raw`         insurer       = factor(ifelse(is.na(insurer),       "Missing", as.character(insurer))),`,"Do the same for insurer."],
+     [String.raw`         prior_visits  = factor(ifelse(n_previous_visits >= 1, "1+", "0"), levels = c("0","1+")),`,"Group previous visits into 0 or 1+."],
+     [String.raw`         age_group     = factor(ifelse(age == "[0-10)", "Under 10", "10+"), levels = c("Under 10","10+")),`,"Group age into Under 10 or 10+."],
+     [String.raw`         readmit       = factor(readmitted, levels = c("No","Yes"))) %>%`,"Rename the outcome to readmit (No or Yes)."],
+     [String.raw`  select(readmit, prior_visits, age_group, sex, race, admission_source,`,"Keep only the 12 columns we need..."],
+     [String.raw`         blood_glucose, insurer, duration, n_medications, n_procedures, n_diagnoses)`,"...and finish the list."]],
+  o:"Nothing prints. Type dim(df_real) to check: 12 columns."},
+ {p:"Part 1 · Make 200,000 synthetic rows", t:"Choose a method for each column", w:"This tells synthpop how to generate each column.",
+  l:[[String.raw`m_final <- c(readmit="sample", prior_visits="logreg", age_group="logreg", sex="logreg",`,"sample = random draw. logreg = logistic regression (two-level columns)."],
+     [String.raw`             race="polyreg", admission_source="polyreg", blood_glucose="polyreg", insurer="polyreg",`,"polyreg = regression for columns with many levels."],
+     [String.raw`             duration="cart", n_medications="cart", n_procedures="cart", n_diagnoses="cart")`,"cart = decision tree, good for number columns."]],
+  o:"Nothing prints."},
+ {p:"Part 1 · Make 200,000 synthetic rows", t:"Print a start message", w:"A marker so you can see where the long step begins.",
+  l:[[String.raw`cat("Starting synthesis for 200,000 observations...\n")`,"Prints the message. \\n adds a new line."]],
+  o:"Starting synthesis for 200,000 observations..."},
+ {p:"Part 1 · Make 200,000 synthetic rows", t:"Create the synthetic data", w:"The main step. It can take a few minutes. Wait for the > prompt to come back.",
+  l:[[String.raw`syn_large_output <- syn(df_real, method = m_final, k = 200000, seed = 501)`,"syn() builds the data. k = 200000 is the row count. seed = 501 makes it repeatable."]],
+  o:"Progress messages as each column is made."},
+ {p:"Part 1 · Make 200,000 synthetic rows", t:"Pull out the data table", w:"syn() returns a big object. We only need the table inside it.",
+  l:[[String.raw`df_synthetic_200k <- syn_large_output$syn`,"$syn is the generated table. We save it as its own data frame."]],
+  o:"Nothing prints. Try head(df_synthetic_200k) to peek."},
+ {p:"Part 1 · Make 200,000 synthetic rows", t:"Check the size", w:"Always confirm you got what you asked for.",
+  l:[[String.raw`cat("\n--- Verification Matrix ---\n")`,"Prints a heading."],[String.raw`print(dim(df_synthetic_200k)) # Should output: 200000 rows by 12 columns`,"dim() shows rows then columns."]],
+  o:"--- Verification Matrix ---\n[1] 200000     12"},
+ {p:"Part 1 · Make 200,000 synthetic rows", t:"Optional: save to a file", w:"Only if your facilitator asks. The line is commented out with #.",
+  l:[[String.raw`#write_csv(df_synthetic_200k, "outputs/synthetic 200k.csv")`,"Saves the table as a CSV. The outputs folder must exist."]]},
+ {p:"Part 2 · Find and remove copies of real rows", t:"Find synthetic rows that copy real rows", w:"No IDs exist yet, so R matches on the 12 data columns. Rows that match are exact copies of real records.",
+  l:[[String.raw`Same <- inner_join(df_synthetic_200k, df_real)`,"Keeps rows found in both tables. With no by given, R matches on every shared column."],
+     [String.raw`nrow(Same)`,"How many matches were found."]],
+  o:"A message like: Joining with by = join_by(readmit, prior_visits, ...). Then a number. Write it down to compare later."},
+ {p:"Part 2 · Find and remove copies of real rows", t:"Remove the exact copies", w:"Drops every synthetic row whose 12 data values exactly match a real row.",
+  l:[[String.raw`# 1. Identify rows in synthetic data that match real data on all variables`,"A comment explaining the step."],
+     [String.raw`df_synthetic_clean <- df_synthetic_200k %>%`,"Start from the synthetic data."],
+     [String.raw`  anti_join(df_real, `,"anti_join keeps only rows that have NO match in df_real."],
+     [String.raw`            by = c("readmit", "prior_visits", "age_group", "sex", "race", `,"Compare on the 12 data columns..."],
+     [String.raw`                   "admission_source", "blood_glucose", "insurer", "duration", `,"...(same list continues)..."],
+     [String.raw`                   "n_medications", "n_procedures", "n_diagnoses"))`,"...and finish the list."]],
+  o:"Nothing prints. The cleaned data is saved as df_synthetic_clean."},
+ {p:"Part 2 · Find and remove copies of real rows", t:"Check how many rows were removed", w:"Prints how many copies were dropped and how many rows remain.",
+  l:[[String.raw`# 2. Check how many matching rows were removed`,"A comment explaining the step."],
+     [String.raw`rows_removed <- nrow(df_synthetic_200k) - nrow(df_synthetic_clean)`,"Rows before minus rows after."],
+     [String.raw`cat(sprintf("Removed %d synthetic rows that exactly duplicated real observations.\n", rows_removed))`,"Prints how many were removed."],
+     [String.raw`cat(sprintf("New synthetic dataset size: %d rows.\n", nrow(df_synthetic_clean)))`,"Prints the size of the cleaned data."]],
+  o:"Removed N synthetic rows that exactly duplicated real observations.\nNew synthetic dataset size: M rows."},
+ {p:"Part 3 · Add USUBJID", t:"Add USUBJID to both datasets", w:"Now give every subject a label like BLB000001. The synthetic labels go on the cleaned data.",
+  l:[[String.raw`df_real <- df_real %>%`,"Start from df_real and save the result back as df_real."],
+     [String.raw`  mutate(USUBJID = sprintf("BLB%06d", row_number())) %>%`,"Create USUBJID: BLB, then the row number padded to 6 digits."],
+     [String.raw`  relocate(USUBJID)`,"Move USUBJID to be the first column."],
+     [String.raw`df_synthetic <- df_synthetic_clean %>%`,"Start from the cleaned synthetic data."],
+     [String.raw`  mutate(USUBJID = sprintf("BLB%06d", row_number())) %>%`,"Same ID format for the synthetic rows."],
+     [String.raw`  relocate(USUBJID)`,"Move USUBJID to be the first column."]],
+  o:"Nothing prints. Type head(df_real$USUBJID) to see BLB000001, BLB000002 ..."},
+ {p:"Part 3 · Add USUBJID", t:"See what the ID changes", w:"Run the same join again, now that every row has an ID. Compare the count with step 9.",
+  l:[[String.raw`Same_with_id <- inner_join(df_synthetic, df_real)`,"Same join, but R now also matches on USUBJID."],
+     [String.raw`nrow(Same_with_id)`,"How many matches now."]],
+  o:"Joining with by = join_by(USUBJID, readmit, ...). The count is far lower than in step 9, usually 0 or close to it."}
+];
+var D = [
+ "Loads the three R packages used in this workshop. readmission supplies the real hospital data, tidyverse supplies the data-handling functions, and synthpop creates the synthetic data and runs the privacy checks. Nothing prints except start-up messages.",
+ "Builds the real dataset used for the whole workshop. It fills blank blood glucose and insurer values with the word Missing, simplifies previous visits and age into two groups each, renames the outcome to readmit, and keeps 12 columns. The result is stored as df_real.",
+ "Creates a list that gives each column one generation method. Two-level categories use logistic regression, multi-level categories use polytomous regression, number columns use decision trees (CART), and the outcome is sampled at random. synthpop reads this list in the big synthesis step.",
+ "Prints a line of text so you can see where the synthesis starts. It has no effect on the data.",
+ "Learns the patterns in df_real column by column and generates 200,000 new rows that follow those patterns without copying real people. The fixed seed means everyone in the class gets the same synthetic data. This is the slowest step.",
+ "syn() returns a bundle with the data, the models and the settings. This line copies just the data table out as df_synthetic_200k so you can use it like any normal data frame.",
+ "Prints the number of rows and columns of the synthetic table so you can confirm the synthesis worked. Expected: 200000 rows and 12 columns.",
+ "Would save the synthetic data to a CSV file you can share. It is switched off by the # at the start. Remove the # and make sure an outputs folder exists if you want to use it.",
+ "Joins the synthetic and real tables on all 12 shared data columns, because no IDs exist yet. Every matching row is an exact copy of a real record. nrow(Same) shows how many there are. Note this number for the comparison in step 13.",
+ "Removes every synthetic row whose 12 data values exactly match a real row. The remaining rows are saved as df_synthetic_clean, so no real person's exact profile appears in the shared data.",
+ "Subtracts the cleaned row count from the original to find how many copies were removed, then prints that number and the size of the new synthetic dataset.",
+ "Adds a new first column called USUBJID to both datasets. Each row gets a label like BLB000001, BLB000002 and so on, based on its row position. The synthetic IDs go on the cleaned data. The IDs are only labels. BLB000001 in the synthetic data is not the same person as BLB000001 in the real data.",
+ "Repeats the join from step 9, but now both tables have USUBJID, so R matches on the ID too. A row only matches if its ID and all 12 values are equal, so the count drops to almost nothing. This shows that adding an ID makes every record unique on paper. It does not reduce the real risk: the 12 data values are the same as before."
+];
+var Q = {
+ 1:{q:"You replaced NA with the level \"Missing\". Why?",o:["So Missing becomes its own category that synthpop can model","Because R cannot store NA in a factor","To delete those patients"],a:0,why:"A Missing level lets the models learn how often it happens and reproduce that rate."},
+ 2:{q:"Which method did we give to number columns like duration?",o:["logreg","polyreg","cart","sample"],a:2,why:"cart grows a decision tree and draws values from the matching leaf. It copes with skewed counts."},
+ 4:{q:"What does seed = 501 do?",o:["Sets the number of rows","Makes the random draws repeatable, so everyone gets the same data","Picks the cart method","Removes missing values"],a:1,why:"A fixed seed fixes the random numbers. Rows are set by k = 200000."},
+ 6:{q:"What should print(dim(df_synthetic_200k)) show?",o:["12 200000","200000 12","200000 200000"],a:1,why:"dim() gives rows first, then columns."},
+ 8:{q:"In step 9, inner_join(df_synthetic_200k, df_real) has no by. What does R match on?",o:["Only the first column","All columns the two tables share","Only row numbers"],a:1,why:"With no by, R joins on every shared column. R prints which ones it used."},
+ 10:{q:"cart only draws values that exist in the real data. What can that cause?",o:["A synthetic row identical to a real row","Missing columns","A shorter dataset"],a:0,why:"With 12 columns and small groups, some synthetic rows can match a real record exactly. That is why we remove copies."},
+ 12:{q:"After adding USUBJID the join finds almost no matches. Did the privacy risk drop?",o:["Yes, IDs make people anonymous","No. The 12 data values are unchanged. The ID only stops the join from matching","Yes, because the rows are shuffled"],a:1,why:"The ID makes each row unique on paper. A join that ignores USUBJID still finds the same copies."}
+};
+
+var AH='<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--ink-soft)"/></marker></defs>';
+function sv(vb,body,al){return '<svg class="dg" viewBox="0 0 480 '+vb+'" role="img" aria-label="'+al+'">'+AH+body+'</svg>';}
+function tri(a,b,c){var x=[10,175,340];function bx(i,cl,t,s,tc){return '<rect class="bx '+cl+'" x="'+x[i]+'" y="22" width="130" height="76" rx="14"/><text class="'+tc+'" x="'+(x[i]+65)+'" y="55" text-anchor="middle">'+t+'</text><text class="'+tc+' s2" x="'+(x[i]+65)+'" y="77" text-anchor="middle">'+s+'</text>';}
+  return bx(0,"a",a[0],a[1],"w")+'<path class="ar flow" d="M143 60H172"/>'+bx(1,"p",b[0],b[1],"wp")+'<path class="ar flow" d="M308 60H337"/>'+bx(2,"g",c[0],c[1],"w");}
+var DG={
+hero:sv(120,tri(["1 · Learn","6 short slides"],["2 · Quiz","6 questions"],["3 · Build","200,000 rows in R"]),"Roadmap: learn, quiz, build"),
+what:sv(228,'<rect class="bx" x="8" y="10" width="150" height="130" rx="12"/><text class="s" x="83" y="34" text-anchor="middle">REAL DATA</text><text class="s2" x="83" y="64" text-anchor="middle">Asha · 34 · Chennai</text><text class="s2" x="83" y="88" text-anchor="middle">Ravi · 51 · Madurai</text><text class="s2" x="83" y="112" text-anchor="middle">Meena · 29 · Salem</text>'
+ +'<path class="ar flow" d="M162 75H200"/><circle class="p" cx="240" cy="75" r="36"/><text class="wp" x="240" y="72" text-anchor="middle">Learns</text><text class="wp" x="240" y="90" text-anchor="middle">patterns</text><path class="ar flow" d="M281 75H320"/>'
+ +'<rect class="bx hl" x="322" y="10" width="150" height="130" rx="12"/><text class="s" x="397" y="34" text-anchor="middle">SYNTHETIC DATA</text><text class="s2" x="397" y="64" text-anchor="middle">001 · 36 · Urban</text><text class="s2" x="397" y="88" text-anchor="middle">002 · 49 · Urban</text><text class="s2" x="397" y="112" text-anchor="middle">003 · 27 · Rural</text>'
+ +'<text class="s2" x="83" y="162" text-anchor="middle">Real people</text><text class="s2" x="397" y="162" text-anchor="middle">Plausible, but random</text>'
+ +'<rect class="g" x="70" y="180" width="340" height="36" rx="18"/><text class="w" x="240" y="203" text-anchor="middle">Same patterns · zero real people</text>',"Real data is learned, synthetic data has no real people"),
+used:sv(212,'<text class="s2" x="288" y="18" text-anchor="middle">Access granted</text><path class="dash" d="M288 24V150"/>'
+ +'<text x="6" y="60">Without</text><text x="6" y="76">synthetic</text><rect class="bx" x="88" y="44" width="200" height="34" rx="8"/><text class="s2" x="188" y="66" text-anchor="middle">Waiting for access…</text><rect class="a" x="288" y="44" width="150" height="34" rx="8"/><text class="w" x="363" y="66" text-anchor="middle">Research</text>'
+ +'<text x="6" y="126">With</text><text x="6" y="142">synthetic</text><rect class="p" x="88" y="110" width="200" height="34" rx="8"/><text class="wp" x="188" y="132" text-anchor="middle">Explore · write code</text><rect class="a" x="288" y="110" width="70" height="34" rx="8"/><text class="w" x="323" y="132" text-anchor="middle">Real run</text>'
+ +'<path class="dash" d="M358 160H438"/><text class="g2" x="398" y="186" text-anchor="middle" style="fill:var(--good)">Finish sooner</text><text class="s2" x="470" y="205" text-anchor="end">time →</text>',"Timeline: synthetic data gives researchers a head start"),
+gen:sv(165,'<rect class="a" x="10" y="20" width="130" height="76" rx="14"/><text class="w" x="75" y="54" text-anchor="middle">Real data</text><text class="w s2" x="75" y="76" text-anchor="middle">de-identified</text>'
+ +'<path class="ar flow" d="M143 58H172"/><rect class="p" x="175" y="20" width="130" height="76" rx="14"/><text class="wp" x="240" y="54" text-anchor="middle">Algorithm</text><text class="wp s2" x="240" y="76" text-anchor="middle">learns the structure</text>'
+ +'<path class="ar flow" d="M308 58H337"/><rect class="g" x="340" y="20" width="130" height="76" rx="14"/><text class="w" x="405" y="54" text-anchor="middle">New dataset</text><text class="w s2" x="405" y="76" text-anchor="middle">synthetic rows</text>'
+ +'<path class="dash" d="M240 120V100"/><rect class="bx" x="150" y="120" width="180" height="32" rx="16"/><text x="240" y="141" text-anchor="middle">synthpop · in R</text>',"Real data goes through an algorithm and becomes a new dataset"),
+safe:sv(176,(function(){var n=[["Raw data","bx"],["De-identify","a"],["Synthesise","a"],["Checks","p"],["Researcher","g"]],t=["real people","no personal info","new rows only","high fidelity only","safe to use"],o="";
+ n.forEach(function(v,i){var x=10+i*95,c=v[1]==="p"?"wp":v[1]==="bx"?"":"w";o+='<rect class="'+(v[1]==="bx"?"bx":v[1])+'" x="'+x+'" y="20" width="82" height="50" rx="10"/><text class="'+c+'" style="font-size:12.5px" x="'+(x+41)+'" y="50" text-anchor="middle">'+v[0]+'</text><text class="s2" style="font-size:11px" x="'+(x+41)+'" y="92" text-anchor="middle">'+t[i]+'</text>'+(i<4?'<path class="ar" d="M'+(x+84)+' 45H'+(x+95)+'"/>':'');});
+ return o+'<text class="s" x="10" y="124">RISK BY FIDELITY</text><rect class="g" x="10" y="132" width="225" height="32" rx="8"/><text class="w" style="font-size:12.5px" x="122" y="153" text-anchor="middle">Low fidelity: very low risk</text><rect class="p" x="245" y="132" width="225" height="32" rx="8"/><text class="wp" style="font-size:12.5px" x="357" y="153" text-anchor="middle">High fidelity: extra checks</text>';})(),"Safety pipeline from raw data to researcher"),
+hands:sv(120,tri(["Part 1","Make 200,000 rows"],["Part 2","Remove copies"],["Part 3","Add USUBJID"]),"Three hands-on parts")};
+var TH=[
+{k:"Welcome",t:"Synthetic Data Workshop",w:"Real patterns. Zero real people. Learn what synthetic data is and why researchers love it, then build 200,000 rows yourself in R.",d:"hero",rem:"Use the dots at the bottom to jump around. Quiz time comes after the slides."},
+{k:"The basics",t:"What is synthetic data?",w:"Artificial data that contains no information about real people, yet follows many of the same patterns as the real thing.",d:"what",tiles:[["🎲 Made at random","Each value is plausible, but generated at random from the structure of the original data."],["🧩 Same shape","Groups, averages and relationships look familiar."],["🔒 No real people","No row describes an actual person."]],rem:"Think of it as a stunt double for your data."},
+{k:"Why it matters",t:"How is it used?",w:"Getting into secure data can be slow. Synthetic data lets you start before access arrives.",d:"used",tiles:[["🔍 Explore","Check the data suits your project."],["⌨️ Build code","Develop and refine models, test hypotheses."],["🎓 Teach","Practise on realistic data, no privacy cost."]],rem:"Real decisions are always made on real data. Synthetic data gets you ready; it doesn’t replace the real thing."},
+{k:"Under the hood",t:"How is it generated?",w:"Algorithms study the structure of existing data, then generate a brand-new dataset that follows it.",d:"gen",tiles:[["🧮 Analyse","The algorithm learns how the columns relate."],["🏭 Generate","New rows are drawn from what it learned."],["📦 synthpop","An R package for making synthetic versions of sensitive individual-level data. You’ll use it soon."]]},
+{k:"Dial it in",t:"Fidelity: how close is close?",w:"Fidelity measures how closely synthetic data resembles the real data. It’s a spectrum, and the level you need depends on the job. Drag the slider.",fid:1,tiles:[["🎯 High fidelity","Closely matches the original. Great for developing code."],["🌫️ Low fidelity","Simplifies complex patterns. Good for judging suitability and for training."]]},
+{k:"Stay safe",t:"How is personal data kept safe?",w:"Protection is built in before, during and after generation.",d:"safe",tiles:[["🧼 De-identify first","Synthetic data usually comes from data that is already anonymised, so it refers to no real people."],["🔎 Extra checks","High-fidelity data may be checked before release so no personal information slips out."],["🟢 Low fidelity","Data that doesn’t keep patterns across columns is very low risk."]]}];
+var TQ=[
+{q:"Which best describes synthetic data?",o:["Real records with the names removed","Artificial data with no real people in it, but similar patterns","An encrypted copy of the real data"],a:1,why:"It is generated, not copied. It follows real patterns without describing real people."},
+{q:"Why is synthetic data handy while you wait for access to real data?",o:["It replaces the real data for final decisions","It makes the real data load faster","You can explore suitability and start writing code early"],a:2,why:"It gives a head start. Real decisions are still made on real data."},
+{q:"Which R tool creates synthetic data in this workshop?",o:["ggplot2","synthpop","shiny","dplyr"],a:1,why:"synthpop builds synthetic versions of sensitive individual-level data."},
+{q:"You want to write and debug code that will later run on the real data. Which fidelity helps most?",o:["Low fidelity","High fidelity","Fidelity doesn’t matter"],a:1,why:"High fidelity mimics the real data closely, so your code behaves much like it will on the real thing."},
+{q:"What usually happens to data before synthetic data is generated from it?",o:["It is de-identified","It is published online","It is deleted"],a:0,why:"De-identification removes personal information first, so the synthetic data refers to no real people."},
+{q:"Which kind of synthetic data is described as very low risk?",o:["High fidelity with all patterns kept","Low fidelity that doesn’t keep patterns across columns","Any data with real names"],a:1,why:"Less similarity to the original means less to leak. High-fidelity data gets extra checks."}];
+var fid=70,RN=[],sd=7;for(var z=0;z<200;z++){sd=(sd*9301+49297)%233280;RN.push(sd/233280);}
+function drawFid(){var f=fid/100,r="",P=[[8,"Real data"],[252,"Synthetic data"]];
+ P.forEach(function(p){r+='<rect class="bx" x="'+p[0]+'" y="30" width="220" height="188" rx="10"/><text class="s" x="'+(p[0]+110)+'" y="20" text-anchor="middle">'+p[1].toUpperCase()+'</text>';});
+ for(var i=0;i<36;i++){var u=RN[i*5],v=Math.min(.97,Math.max(.03,.15+.7*u+(RN[i*5+1]-.5)*.25));
+  var su=Math.min(1,Math.max(0,(u*f+RN[i*5+2]*(1-f))+(RN[i*5+4]-.5)*.05)),sv2=Math.min(.97,Math.max(.03,v*f+(.5+(RN[i*5+3]-.5)*.6)*(1-f)));
+  r+='<circle cx="'+(18+u*200).toFixed(1)+'" cy="'+(40+(1-v)*168).toFixed(1)+'" r="4.5" style="fill:var(--accent)"/><circle cx="'+(262+su*200).toFixed(1)+'" cy="'+(40+(1-sv2)*168).toFixed(1)+'" r="4.5" style="fill:var(--pop)"/>';}
+ document.getElementById("fidsvg").innerHTML=AH+r;
+ document.getElementById("fidtxt").textContent=fid>=70?"High fidelity: the trend is kept. Best for writing and testing code. Gets extra safety checks.":fid>=35?"Medium fidelity: the main trend shows, details are blurred.":"Low fidelity: the pattern is mostly gone. Fine for judging suitability and teaching. Very low risk.";}
+function tiles(a){return a?'<div class="tiles">'+a.map(function(t){return '<div class="tile"><b>'+t[0]+'</b>'+esc(t[1])+'</div>';}).join("")+"</div>":"";}
+function theoryHTML(i){var s=TH[i],h='<span class="kick">'+s.k+' · '+(i+1)+'/'+TH.length+'</span><h1>'+esc(s.t)+'</h1><p class="why">'+esc(s.w)+'</p>';
+ if(s.d)h+='<div class="dgw">'+DG[s.d]+'</div>';
+ if(s.fid)h+='<div class="dgw"><svg class="dg" id="fidsvg" viewBox="0 0 480 228" role="img" aria-label="Real and synthetic scatter plots"></svg><div class="fidrow"><span>LOW</span><input type="range" id="fid" min="0" max="100" value="'+fid+'" aria-label="Fidelity"><span>HIGH</span></div><div id="fidtxt"></div></div>';
+ h+=tiles(s.tiles);if(s.rem)h+='<div class="rem"><b>Remember</b><p style="margin:2px 0 0">'+esc(s.rem)+'</p></div>';
+ return h+'<div class="nav"><button data-a="back"'+(i===0&&cur===0?" disabled":"")+'>Back</button><button class="next" data-a="next">'+(i===TH.length-1?"Take the quiz":"Next")+'</button></div>';}
+function handsHTML(){return '<span class="stamp">Level up</span><div class="part">Hands-on</div><h1>Now build it yourself</h1><p class="why">You know what synthetic data is, how it’s made, how fidelity works and how privacy is protected. Time to do it in R with synthpop.</p><div class="dgw">'+DG.hands+'</div><div class="nav"><button data-a="back">Back</button><button class="next" data-a="next">Start Part 1</button></div>';}
+var LR=[["Fit on the real data","Fit a logistic model on the real data to get its coefficients."],["Add parameter uncertainty","This stops synthpop from producing a replica of the real data."],["Consider the posterior distribution","Picture a cloud of plausible coefficient values, not just one."],["Draw new coefficients","Pick coefficients that sit in and around the real data’s coefficients."],["Build the linear predictor","Synthetic predictor variables combined with the new coefficients."],["Apply the inverse logit","Turns the linear predictor into a synthetic probability."],["Run a Bernoulli trial","Pass that probability in as the parameter. The draw (0 or 1) is your synthetic value."]];
+function exploreHTML(){return '<div class="explore"><b>Keep exploring</b><span>Feel free to explore other topics and dig deeper into synthetic data. Good places to start:</span><ul><li>The <a href="https://cran.r-project.org/package=synthpop" target="_blank" rel="noopener">synthpop package on CRAN</a> (manual, vignettes and function reference)</li><li>Other methods in syn(), such as ctree, rf and norm</li><li>Utility and disclosure checks, such as compare()</li></ul></div>';}
+function notesHTML(){return '<span class="kick">Optional notes · at a glance</span><h1>How logreg works in 7 steps</h1><p class="why">Previous columns act as independent predictors, and syn() is a probabilistic simulation approach. It draws new values instead of copying real ones.</p><ol class="stp">'+LR.map(function(s){return '<li><span><b>'+esc(s[0])+'</b>'+esc(s[1])+'</span></li>';}).join('')+'</ol><div class="code"><div class="ln"><pre>'+hl('p <- plogis(x_syn %*% beta_star)\ny_syn <- rbinom(1, size = 1, prob = p)')+'</pre><p>Steps 5 to 7 in R. plogis() is the inverse logit and rbinom() is the Bernoulli draw. Simplified for reading, not for running.</p></div></div>'+exploreHTML()+'<div class="nav"><button data-a="back">Back</button><button class="next" data-a="next">Finish</button></div>';}
+function chipLabel(f){return f.t==="th"?"Learn "+(f.i+1)+" of "+TH.length:f.t==="tq"?"Theory quiz "+(f.i+1)+" of "+TQ.length:f.t==="hands"?"Hands-on":f.t==="n"?"Optional notes":f.t==="q"?"Surprise quiz":f.t==="e"?"Optional":"Step "+(f.i+1)+" of "+S.length;}
+function dotLabel(f){return f.t==="th"?"Learn "+(f.i+1):f.t==="tq"?"Theory quiz "+(f.i+1):f.t==="hands"?"Hands-on":f.t==="n"?"Optional notes":f.t==="q"?"Quiz":f.t==="e"?"Optional":"Step "+(f.i+1);}
+
+var INSPECT = 'syn_large_output$method\nsyn_large_output$visit.sequence\nsyn_large_output$predictor.matrix';
+var EXPLAIN = '<div class="desc"><b>The big idea</b><p>syn() builds the synthetic data one column at a time, in the order of the columns in df_real. It learns from the real data, then generates new values. No real row is copied on purpose.</p></div>'
+ + '<div class="desc"><b>What happens inside syn(df_real, method = m_final, k = 200000, seed = 501)</b>'
+ + '<p><b>1. First column (readmit).</b> It has nothing before it, so values are drawn at random from the real values. This keeps the real Yes/No share.</p>'
+ + '<p><b>2. Every later column.</b> A model is fitted on the real data to predict the column from the columns before it. Then the already-synthetic earlier columns go into that model to generate the new column.</p>'
+ + '<p><b>3. Chaining.</b> Each column depends on the synthetic columns before it, so relationships between variables carry over.</p>'
+ + '<p><b>4. k = 200000</b> sets the number of rows. <b>seed = 501</b> makes the random draws repeatable.</p></div>'
+ + '<div class="desc"><b>The three methods in this workshop</b>'
+ + '<p><b>sample</b> (readmit): random draw of real values, no model. Only suitable for the first column.</p>'
+ + '<p><b>logreg</b> (prior_visits, age_group, sex): logistic regression for two-level columns. It estimates the chance of each level from the earlier columns and draws from it.</p>'
+ + '<p><b>polyreg</b> (race, admission_source, blood_glucose, insurer): the same idea for columns with more than two levels. Missing is one of the levels.</p>'
+ + '<p><b>cart</b> (duration, n_medications, n_procedures, n_diagnoses): a decision tree. Each synthetic row falls into a leaf and its value is drawn from the real values in that leaf.</p></div>'
+ + '<div class="desc"><b>Why this matters for privacy</b>'
+ + '<p>cart only returns values that exist in the real data, so a synthetic row can end up identical to a real row. That is why the workshop removes exact copies. Column order matters, and the models use main effects only, so check how well the data matches with compare(syn_large_output, df_real).</p></div>';
+var F = []; TH.forEach(function (s, i) { F.push({ t: "th", i: i }); }); TQ.forEach(function (s, i) { F.push({ t: "tq", i: i }); }); F.push({ t: "hands" }); S.forEach(function (s, i) { F.push({ t: "s", i: i }); if (Q[i]) F.push({ t: "q", i: i }); });
+F.push({ t: "e" }); F.push({ t: "n" });
+var cur = 0, cp = {}, qa = {}, tqa = {}, showOut = {}, gain = false;
+try { var sv = JSON.parse(localStorage.getItem("synthpop-v2") || "{}"); if (typeof sv.cur === "number" && sv.cur >= 0 && sv.cur <= F.length) cur = sv.cur; cp = sv.cp || {}; qa = sv.qa || {}; tqa = sv.tqa || {}; } catch (e) {}
+function save() { try { localStorage.setItem("synthpop-v2", JSON.stringify({ cur: cur, cp: cp, qa: qa, tqa: tqa })); } catch (e) {} }
+function esc(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function hl(src) {
+  var re = /(#.*$)|("(?:[^"\\]|\\.)*")|(%>%|<-)|\b(\d[\d.]*)\b|\b(TRUE|FALSE|NA|library)\b|\b([A-Za-z_.][\w.]*)(?=\()/g, out = "", last = 0, m;
+  while ((m = re.exec(src))) { out += esc(src.slice(last, m.index)); var c = m[1] ? "comment" : m[2] ? "string" : m[3] ? "op" : m[4] ? "num" : m[5] ? "kw" : "fn"; out += '<span class="c-' + c + '">' + esc(m[0]) + "</span>"; last = m.index + m[0].length; }
+  return out + esc(src.slice(last));
+}
+function stats() {
+  var xp = 0, ok = 0, streak = 0, run = 0, k;
+  for (k in cp) if (cp[k] && k !== "x") xp += 5;
+  Object.keys(Q).map(Number).sort(function (x, y) { return x - y; }).forEach(function (i) {
+    if (qa[i] === undefined || qa[i] === -1) { return; }
+    if (qa[i] === Q[i].a) { ok++; xp += 10; run++; } else run = 0;
+  });
+  TQ.forEach(function (q, i) { if (tqa[i] !== undefined && tqa[i] !== -1 && tqa[i] === q.a) { ok++; xp += 10; } });
+  return { xp: xp, ok: ok, streak: run, total: Object.keys(Q).length + TQ.length };
+}
+function burst() {
+  var card = document.getElementById("card"); if (!card) return;
+  var cols = ["var(--accent)", "var(--good)", "var(--pop)", "var(--ink)"], h = '<div class="burst">';
+  for (var i = 0; i < 20; i++) { var ang = Math.random() * 6.28, d = 80 + Math.random() * 140; h += '<i style="background:' + cols[i % 4] + ";--x:" + Math.round(Math.cos(ang) * d) + "px;--y:" + Math.round(Math.sin(ang) * d - 40) + "px;--r:" + Math.round(Math.random() * 540) + 'deg"></i>'; }
+  var w = document.createElement("div"); w.innerHTML = h + "</div>"; card.appendChild(w.firstChild);
+  setTimeout(function () { var x = card.querySelector(".burst"); if (x) x.remove(); }, 1000);
+}
+function rankOf(st) { return st.ok >= st.total - 1 ? ["Privacy Pro", "You can explain how synthetic data is made and where it can leak."] : st.ok >= Math.ceil(st.total / 2) ? ["Synthetic Analyst", "Solid. Review the quiz topics you missed."] : ["Data Intern", "Good start. Walk back through the steps and try again."]; }
+function render() {
+  var n = F.length, st = stats(), h = "", L = ["A", "B", "C", "D"];
+  document.getElementById("chips").innerHTML =
+    '<span class="chip">' + (cur < n ? chipLabel(F[cur]) : "All done") + "</span>" +
+    '<span class="chip' + (gain ? " pulse" : "") + '">' + st.xp + " XP</span>" +
+    '<span class="chip' + (st.streak >= 2 ? " hot" : "") + '">streak ' + st.streak + "</span>";
+  gain = false;
+  document.getElementById("fill").style.width = (100 * Math.min(cur, n) / n) + "%";
+  var card = document.getElementById("card"); card.className = "card";
+  if (cur >= n) {
+    var r = rankOf(st);
+    h = '<div class="done"><span class="part">Workshop complete</span><div class="rank">' + r[0] + '</div><p class="why">' + r[1] + '</p></div><div class="sum"><span class="chip">' + st.xp + ' XP</span><span class="chip">quiz ' + st.ok + " / " + st.total + '</span></div>' + exploreHTML() + '<div class="nav"><button data-a="back">Back</button><button class="next" data-a="restart">Play again</button></div>';
+  } else if (F[cur].t === "th") { h = theoryHTML(F[cur].i); card.className = "card th";
+  } else if (F[cur].t === "hands") { h = handsHTML(); card.className = "card th";
+  } else if (F[cur].t === "q" || F[cur].t === "tq") {
+    var T = F[cur].t === "tq", i = F[cur].i, q = (T ? TQ : Q)[i], ans = (T ? tqa : qa)[i], answered = ans !== undefined;
+    card.className = "card quiz";
+    h += (T ? '<span class="stamp">Theory check</span><div class="part q">Question ' + (i + 1) + " of " + TQ.length + "</div>" : '<span class="stamp">Surprise quiz</span><div class="part q">Pop quiz after step ' + (i + 1) + "</div>") + "<h1>" + esc(q.q) + '</h1><div class="opts">';
+    q.o.forEach(function (o, k) {
+      var c = "opt"; if (answered) { if (k === q.a) c += " right"; else if (k === ans) c += " wrong"; }
+      h += '<button class="' + c + '" data-a="pick" data-o="' + k + '"' + (answered ? " disabled" : "") + "><b>" + L[k] + "</b><span>" + esc(o) + "</span></button>";
+    });
+    h += "</div>";
+    if (answered && ans !== -1) h += '<div class="fb' + (ans === q.a ? "" : " no") + '"><b>' + (ans === q.a ? "Correct. +10 XP" : "Not this time.") + "</b>" + esc(q.why) + "</div>";
+    if (answered && ans === -1) h += '<div class="fb no"><b>Skipped.</b>' + esc(q.why) + "</div>";
+    if (!answered) h += '<button class="skip" data-a="skip">Skip this question</button>';
+    h += '<div class="nav"><button data-a="back">Back</button><button class="next" data-a="next"' + (answered ? "" : " disabled") + ">Continue</button></div>";
+  } else if (F[cur].t === "n") { h = notesHTML(); card.className = "card th";
+  } else if (F[cur].t === "e") {
+    h += '<div class="part">Optional extra</div><h1>How syn() works</h1><p class="why">Read this if you want to know what happens inside the synthesis step. No need to run anything.</p>' + EXPLAIN;
+    h += '<div class="code"><div class="ln"><pre>' + hl(INSPECT) + '</pre><p>Optional: prints the methods, the order and the predictors synthpop actually used. Run it after the synthesis step.</p></div></div>';
+    h += '<button class="copy' + (cp.x ? " ok" : "") + '" data-a="copyx">' + (cp.x ? "Copied. Now paste it in R and run" : "Copy code") + "</button>";
+    h += '<div class="nav"><button data-a="back">Back</button><button class="next" data-a="next">Next</button></div>';
+  } else {
+    var s = S[F[cur].i], k2 = F[cur].i;
+    h += '<div class="part">' + esc(s.p) + "</div><h1>" + esc(s.t) + '</h1><p class="why">' + esc(s.w) + "</p>";
+    h += '<div class="code">';
+    s.l.forEach(function (l) { h += '<div class="ln"><pre>' + hl(l[0]) + "</pre><p>" + esc(l[1]) + "</p></div>"; });
+    h += "</div>";
+    h += '<button class="copy' + (cp[k2] ? " ok" : "") + '" data-a="copy">' + (cp[k2] ? "Copied. Now paste it in R and run" : "Copy code") + "</button>";
+    h += '<div class="desc"><b>What this code does</b><p>' + esc(D[k2]) + "</p></div>";
+    if (s.o) { h += '<button class="see" data-a="out">' + (showOut[k2] ? "Hide" : "What should I see after running?") + "</button>"; if (showOut[k2]) h += '<pre class="out">' + esc(s.o) + "</pre>"; }
+    h += '<div class="nav"><button data-a="back"' + (cur === 0 ? " disabled" : "") + '>Back</button><button class="next" data-a="next">' + (cur === n - 1 ? "Finish" : "Next") + "</button></div>";
+  }
+  card.innerHTML = h; if (document.getElementById("fidsvg")) drawFid();
+  var d = ""; F.forEach(function (f, j) { d += '<button data-a="go" data-i="' + j + '" class="' + (f.t === "q" || f.t === "tq" ? "q " : "") + (j === cur ? "on" : j < cur ? "past" : "") + '" aria-label="' + dotLabel(f) + '"></button>'; });
+  document.getElementById("dots").innerHTML = d;
+  save();
+}
+function copyText(t, cb) {
+  function fb() { var a = document.createElement("textarea"); a.value = t; a.style.position = "fixed"; a.style.opacity = "0"; document.body.appendChild(a); a.select(); try { document.execCommand("copy"); } catch (e) {} document.body.removeChild(a); cb(); }
+  try { navigator.clipboard.writeText(t).then(cb, fb); } catch (e) { fb(); }
+}
+function toTop() { window.scrollTo({ top: 0 }); }
+document.addEventListener("click", function (e) {
+  var b = e.target.closest("[data-a]"); if (!b) return; var a = b.getAttribute("data-a");
+  if (a === "copy") { var k = F[cur].i; copyText(S[k].l.map(function (l) { return l[0]; }).join("\n"), function () { if (!cp[k]) gain = true; cp[k] = true; render(); }); }
+  else if (a === "copyx") { copyText(INSPECT, function () { cp.x = true; render(); }); }
+  else if (a === "pick") { var T2 = F[cur].t === "tq", i = F[cur].i, o = +b.getAttribute("data-o"), qq = T2 ? TQ[i] : Q[i]; (T2 ? tqa : qa)[i] = o; if (o === qq.a) gain = true; render(); if (o === qq.a) burst(); }
+  else if (a === "skip") { (F[cur].t === "tq" ? tqa : qa)[F[cur].i] = -1; render(); }
+  else if (a === "next") { cur++; render(); toTop(); }
+  else if (a === "back") { cur--; render(); toTop(); }
+  else if (a === "out") { var k3 = F[cur].i; showOut[k3] = !showOut[k3]; render(); }
+  else if (a === "go") { cur = +b.getAttribute("data-i"); render(); toTop(); }
+  else if (a === "restart") { cur = 0; cp = {}; qa = {}; tqa = {}; showOut = {}; render(); toTop(); }
+});
+document.addEventListener("input", function (e) { if (e.target.id === "fid") { fid = +e.target.value; drawFid(); } });
+render();
+</script>
+
+</body></html>
