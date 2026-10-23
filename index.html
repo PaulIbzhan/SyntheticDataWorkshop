@@ -173,10 +173,6 @@ var S = [
   o:"--- Verification Matrix ---\n[1] 200000     12"},
  {p:"Part 1 · Make 200,000 synthetic rows", t:"Optional: save to a file", w:"Only if your facilitator asks. The line is commented out with #.",
   l:[[String.raw`#write_csv(df_synthetic_200k, "outputs/synthetic 200k.csv")`,"Saves the table as a CSV. The outputs folder must exist."]]},
- {p:"Part 2 · Find and remove copies of real rows", t:"Find synthetic rows that copy real rows", w:"No IDs exist yet, so R matches on the 12 data columns. Rows that match are exact copies of real records.",
-  l:[[String.raw`Same <- inner_join(df_synthetic_200k, df_real)`,"Keeps rows found in both tables. With no by given, R matches on every shared column."],
-     [String.raw`nrow(Same)`,"How many matches were found."]],
-  o:"A message like: Joining with by = join_by(readmit, prior_visits, ...). Then a number. Write it down to compare later."},
  {p:"Part 2 · Find and remove copies of real rows", t:"Remove the exact copies", w:"Drops every synthetic row whose 12 data values exactly match a real row.",
   l:[[String.raw`# 1. Identify rows in synthetic data that match real data on all variables`,"A comment explaining the step."],
      [String.raw`df_synthetic_clean <- df_synthetic_200k %>%`,"Start from the synthetic data."],
@@ -199,10 +195,10 @@ var S = [
      [String.raw`  mutate(USUBJID = sprintf("BLB%06d", row_number())) %>%`,"Same ID format for the synthetic rows."],
      [String.raw`  relocate(USUBJID)`,"Move USUBJID to be the first column."]],
   o:"Nothing prints. Type head(df_real$USUBJID) to see BLB000001, BLB000002 ..."},
- {p:"Part 3 · Add USUBJID", t:"See what the ID changes", w:"Run the same join again, now that every row has an ID. Compare the count with step 9.",
-  l:[[String.raw`Same_with_id <- inner_join(df_synthetic, df_real)`,"Same join, but R now also matches on USUBJID."],
+ {p:"Part 3 · Add USUBJID", t:"See what the ID changes", w:"Join the cleaned synthetic data to the real data, now that every row has an ID.",
+  l:[[String.raw`Same_with_id <- inner_join(df_synthetic, df_real)`,"Joins on all shared columns. USUBJID is now one of them, so it must match too."],
      [String.raw`nrow(Same_with_id)`,"How many matches now."]],
-  o:"Joining with by = join_by(USUBJID, readmit, ...). The count is far lower than in step 9, usually 0 or close to it."}
+  o:"Joining with by = join_by(USUBJID, readmit, ...). The count is 0 or very close to it."}
 ];
 var D = [
  "Loads the three R packages used in this workshop. readmission supplies the real hospital data, tidyverse supplies the data-handling functions, and synthpop creates the synthetic data and runs the privacy checks. Nothing prints except start-up messages.",
@@ -213,20 +209,18 @@ var D = [
  "syn() returns a bundle with the data, the models and the settings. This line copies just the data table out as df_synthetic_200k so you can use it like any normal data frame.",
  "Prints the number of rows and columns of the synthetic table so you can confirm the synthesis worked. Expected: 200000 rows and 12 columns.",
  "Would save the synthetic data to a CSV file you can share. It is switched off by the # at the start. Remove the # and make sure an outputs folder exists if you want to use it.",
- "Joins the synthetic and real tables on all 12 shared data columns, because no IDs exist yet. Every matching row is an exact copy of a real record. nrow(Same) shows how many there are. Note this number for the comparison in step 13.",
- "Removes every synthetic row whose 12 data values exactly match a real row. The remaining rows are saved as df_synthetic_clean, so no real person's exact profile appears in the shared data.",
+ "Removes every synthetic row whose 12 data values exactly match a real row. anti_join keeps only the synthetic rows that have no match in df_real, and the result is saved as df_synthetic_clean, so no real person's exact profile appears in the shared data.",
  "Subtracts the cleaned row count from the original to find how many copies were removed, then prints that number and the size of the new synthetic dataset.",
  "Adds a new first column called USUBJID to both datasets. Each row gets a label like BLB000001, BLB000002 and so on, based on its row position. The synthetic IDs go on the cleaned data. The IDs are only labels. BLB000001 in the synthetic data is not the same person as BLB000001 in the real data.",
- "Repeats the join from step 9, but now both tables have USUBJID, so R matches on the ID too. A row only matches if its ID and all 12 values are equal, so the count drops to almost nothing. This shows that adding an ID makes every record unique on paper. It does not reduce the real risk: the 12 data values are the same as before."
+ "Joins the cleaned synthetic data to the real data. Both tables now have USUBJID, so R matches on the ID too. A row only matches if its ID and all 12 values are equal, so the count is 0 or close to it. This shows that adding an ID makes every record unique on paper. It does not reduce the real risk: the 12 data values are the same as before."
 ];
 var Q = {
  1:{q:"You replaced NA with the level \"Missing\". Why?",o:["So Missing becomes its own category that synthpop can model","Because R cannot store NA in a factor","To delete those patients"],a:0,why:"A Missing level lets the models learn how often it happens and reproduce that rate."},
  2:{q:"Which method did we give to number columns like duration?",o:["logreg","polyreg","cart","sample"],a:2,why:"cart grows a decision tree and draws values from the matching leaf. It copes with skewed counts."},
  4:{q:"What does seed = 501 do?",o:["Sets the number of rows","Makes the random draws repeatable, so everyone gets the same data","Picks the cart method","Removes missing values"],a:1,why:"A fixed seed fixes the random numbers. Rows are set by k = 200000."},
  6:{q:"What should print(dim(df_synthetic_200k)) show?",o:["12 200000","200000 12","200000 200000"],a:1,why:"dim() gives rows first, then columns."},
- 8:{q:"In step 9, inner_join(df_synthetic_200k, df_real) has no by. What does R match on?",o:["Only the first column","All columns the two tables share","Only row numbers"],a:1,why:"With no by, R joins on every shared column. R prints which ones it used."},
- 10:{q:"cart only draws values that exist in the real data. What can that cause?",o:["A synthetic row identical to a real row","Missing columns","A shorter dataset"],a:0,why:"With 12 columns and small groups, some synthetic rows can match a real record exactly. That is why we remove copies."},
- 12:{q:"After adding USUBJID the join finds almost no matches. Did the privacy risk drop?",o:["Yes, IDs make people anonymous","No. The 12 data values are unchanged. The ID only stops the join from matching","Yes, because the rows are shuffled"],a:1,why:"The ID makes each row unique on paper. A join that ignores USUBJID still finds the same copies."}
+ 9:{q:"cart only draws values that exist in the real data. What can that cause?",o:["A synthetic row identical to a real row","Missing columns","A shorter dataset"],a:0,why:"With 12 columns and small groups, some synthetic rows can match a real record exactly. That is why we remove copies."},
+ 11:{q:"After adding USUBJID the join finds almost no matches. Did the privacy risk drop?",o:["Yes, IDs make people anonymous","No. The 12 data values are unchanged. The ID only stops the join from matching","Yes, because the rows are shuffled"],a:1,why:"The ID makes each row unique on paper, so an ID-based join matches almost nothing. The 12 data values are unchanged, so the risk is the same."}
 };
 
 var AH='<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--ink-soft)"/></marker></defs>';
@@ -304,8 +298,8 @@ var EXPLAIN = '<div class="desc"><b>The big idea</b><p>syn() builds the syntheti
 var F = []; TH.forEach(function (s, i) { F.push({ t: "th", i: i }); }); TQ.forEach(function (s, i) { F.push({ t: "tq", i: i }); }); F.push({ t: "hands" }); S.forEach(function (s, i) { F.push({ t: "s", i: i }); if (Q[i]) F.push({ t: "q", i: i }); });
 F.push({ t: "e" }); F.push({ t: "n" });
 var cur = 0, cp = {}, qa = {}, tqa = {}, showOut = {}, gain = false;
-try { var sv = JSON.parse(localStorage.getItem("synthpop-v2") || "{}"); if (typeof sv.cur === "number" && sv.cur >= 0 && sv.cur <= F.length) cur = sv.cur; cp = sv.cp || {}; qa = sv.qa || {}; tqa = sv.tqa || {}; } catch (e) {}
-function save() { try { localStorage.setItem("synthpop-v2", JSON.stringify({ cur: cur, cp: cp, qa: qa, tqa: tqa })); } catch (e) {} }
+try { var sv = JSON.parse(localStorage.getItem("synthpop-v3") || "{}"); if (typeof sv.cur === "number" && sv.cur >= 0 && sv.cur <= F.length) cur = sv.cur; cp = sv.cp || {}; qa = sv.qa || {}; tqa = sv.tqa || {}; } catch (e) {}
+function save() { try { localStorage.setItem("synthpop-v3", JSON.stringify({ cur: cur, cp: cp, qa: qa, tqa: tqa })); } catch (e) {} }
 function esc(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function hl(src) {
   var re = /(#.*$)|("(?:[^"\\]|\\.)*")|(%>%|<-)|\b(\d[\d.]*)\b|\b(TRUE|FALSE|NA|library)\b|\b([A-Za-z_.][\w.]*)(?=\()/g, out = "", last = 0, m;
